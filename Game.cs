@@ -74,6 +74,8 @@ namespace WhosTurn
 
         public void UpdateGame()
         {
+            MainWindow.StaticUpdateKeysDisplay();
+
             // (re)start game countdown if more than 1 person is playing
             bool shouldStartGame = KeysInGame.Count > 1;
             if (shouldStartGame)
