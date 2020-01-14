@@ -1,4 +1,4 @@
-# WhosTurn
+# Who'sTurn
 A small minigame to decide who's turn it is to make the coffee.
 
 This was a quick project to recap WPF and C# skills.
