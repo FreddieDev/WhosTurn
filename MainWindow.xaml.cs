@@ -82,7 +82,7 @@ namespace WhosTurn
             }
             RenderKey(LoserKey);
             LoserKey.Ellipse.StrokeThickness = 3;
-            LoserKey.Ellipse.Stroke = new SolidColorBrush(Colors.Red);
+            LoserKey.Ellipse.Stroke = new SolidColorBrush(Colors.DarkRed);
 
             L_Countdown.Content = "";
             TB_Status.Text = loserKey.ButtonChar + "\nLOSES";
