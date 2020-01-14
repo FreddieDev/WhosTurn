@@ -11,7 +11,7 @@ namespace WhosTurn
     public class Game
     {
         // Settings
-        private readonly int CountdownDuration = 3;
+        private readonly int CountdownDuration = 5;
 
         // Vars
         private DispatcherTimer dispatcherTimer;

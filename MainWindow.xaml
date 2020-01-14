@@ -7,10 +7,6 @@
         mc:Ignorable="d"
         Title="Who'sTurn" Height="450" Width="800" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="255*"/>
-            <ColumnDefinition Width="538*"/>
-        </Grid.ColumnDefinitions>
         <Label Content="Who'sTurn" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontFamily="Trebuchet MS" FontSize="28" FontWeight="Bold" Height="43" Width="146"/>
         <Label Content="Coffee rounds, office cleanups, car sharing? Decide who takes the hit!" HorizontalAlignment="Left" Margin="29,58,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.154,1.153" FontSize="16" Grid.ColumnSpan="2" Height="32" Width="498"/>
         <Label x:Name="L_Countdown" Content="Game starting in 5 seconds..." HorizontalAlignment="Right" Margin="0,95,9.6,0" VerticalAlignment="Top" FontSize="18" FontFamily="Segoe UI Semibold" HorizontalContentAlignment="Right" Height="53" Visibility="Hidden" Grid.Column="1" Width="245"/>

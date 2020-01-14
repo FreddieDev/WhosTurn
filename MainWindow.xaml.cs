@@ -6,6 +6,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Linq;
+using System.Threading;
+using System.Windows.Threading;
+using System.Collections.Generic;
 
 namespace WhosTurn
 {
@@ -22,6 +25,8 @@ namespace WhosTurn
 
         private readonly string awaitingMatchText = "Press a key to start a game...";
         private readonly string matchBeginningText = "Hold any key to join!";
+        private readonly FontFamily statusDefaultFont = new FontFamily("Segoe UI SemiBold");
+        private readonly FontFamily statusLoserFont = new FontFamily("Segoe UI Black");
 
         private readonly String[] bannedKeyNames = new String[] {
             "Oem",
@@ -33,16 +38,17 @@ namespace WhosTurn
         private GameKey LoserKey;
         private bool readyForGame = true;
 
-
-        // Static form. Null if no form created yet.
         private static MainWindow form = null;
         private readonly Game whosTurn;
+        private DispatcherTimer keyUpTimer;
+        public List<Key> KeysToRemove { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             whosTurn = new Game();
             form = this;
+            KeysToRemove = new List<Key>();
 
             TB_Status.Text = awaitingMatchText;
         }
@@ -98,7 +104,8 @@ namespace WhosTurn
             LoserKey.Ellipse.Stroke = new SolidColorBrush(Colors.DarkRed);
 
             L_Countdown.Content = "";
-            TB_Status.Text = loserKey.ButtonChar + "\nLOSES";
+            TB_Status.Text = "PLAYER " + loserKey.ButtonChar + " LOSES!";
+            TB_Status.FontFamily = statusLoserFont;
         }
 
         public static void SetCountdownVisibility(bool countdownVisibility)
@@ -154,27 +161,51 @@ namespace WhosTurn
             whosTurn.AddKey(asciiCode, keyStr);
         }
 
+        private void Window_ActualKeyUp(List<Key> keysToRemove)
+        {
+            keyUpTimer.Stop();
+
+            foreach (Key key in keysToRemove)
+            {
+                int asciiCode = KeyInterop.VirtualKeyFromKey(key);
+
+                // Check if the key is in the game
+                if (whosTurn.KeysInGame.FindAll(Key => Key.ASCIICode == asciiCode).Count == 0) continue;
+
+
+                // Don't allow keys to be removed by other keyboards (check key is still down)
+                if (Keyboard.IsKeyDown(key)) continue;
+
+                whosTurn.RemoveKey(asciiCode);
+
+                if (whosTurn.KeysInGame.Count == 0)
+                {
+                    if (!readyForGame)
+                    {
+                        ClearKey(LoserKey);
+                        LoserKey = null;
+                        readyForGame = true;
+                    }
+
+                    TB_Status.FontFamily = statusDefaultFont;
+                    TB_Status.Text = awaitingMatchText;
+                }
+            }
+
+            keysToRemove.Clear();
+        }
+
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
             base.OnKeyUp(e);
 
-            int asciiCode = KeyInterop.VirtualKeyFromKey(e.Key);
+            KeysToRemove.Add(e.Key);
 
-            // Check if the key is added
-            if (whosTurn.KeysInGame.FindAll(Key => Key.ASCIICode == asciiCode).Count == 0) return;
-
-            whosTurn.RemoveKey(asciiCode);
-
-            if (whosTurn.KeysInGame.Count == 0)
-            {
-                if (!readyForGame)
-                {
-                    ClearKey(LoserKey);
-                    LoserKey = null;
-                    readyForGame = true;
-                }
-                TB_Status.Text = awaitingMatchText;
-            }
+            //  DispatcherTimer setup
+            keyUpTimer = new DispatcherTimer();
+            keyUpTimer.Tick += (_, __) => { Window_ActualKeyUp(KeysToRemove); };
+            keyUpTimer.Interval = new TimeSpan(0, 0, 0, 0, 400);
+            keyUpTimer.Start();
         }
     }
 }
