@@ -5,6 +5,7 @@ using KeysConverter = System.Windows.Forms.KeysConverter;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Linq;
 
 namespace WhosTurn
 {
@@ -19,6 +20,9 @@ namespace WhosTurn
         private readonly int keyEllipseMargin = 12;
         private readonly int keyDisplayPadding = 17;
 
+        private readonly string awaitingMatchText = "Press a key to start a game...";
+        private readonly string matchBeginningText = "Hold any key to join!";
+
         private GameKey LoserKey;
         private bool readyForGame = true;
 
@@ -32,6 +36,8 @@ namespace WhosTurn
             InitializeComponent();
             whosTurn = new Game();
             form = this;
+
+            TB_Status.Text = awaitingMatchText;
         }
 
         private static string GetKeyLetterFromNumber(int letterNumber)
@@ -136,6 +142,7 @@ namespace WhosTurn
             string keyStr = GetKeyLetterFromNumber(asciiCode);
             if (keyStr.Length > 4) return; // Ignore keys with big names
 
+            TB_Status.Text = matchBeginningText;
             whosTurn.AddKey(asciiCode, keyStr);
         }
 
@@ -144,6 +151,10 @@ namespace WhosTurn
             base.OnKeyUp(e);
 
             int asciiCode = KeyInterop.VirtualKeyFromKey(e.Key);
+
+            // Check if the key is added
+            if (whosTurn.KeysInGame.FindAll(Key => Key.ASCIICode == asciiCode).Count == 0) return;
+
             whosTurn.RemoveKey(asciiCode);
 
             if (whosTurn.KeysInGame.Count == 0)
@@ -154,7 +165,7 @@ namespace WhosTurn
                     LoserKey = null;
                     readyForGame = true;
                 }
-                TB_Status.Text = "Hold any letters to begin...";
+                TB_Status.Text = awaitingMatchText;
             }
         }
     }

@@ -26,7 +26,7 @@
         </Label>
         <Label Content="Keyboard ghosting? Use multiple keyboards" HorizontalAlignment="Left" Margin="29,380,0,0" VerticalAlignment="Top" Background="{x:Null}" Foreground="Black" Height="26" Width="243" Grid.ColumnSpan="2"/>
         <Canvas x:Name="C_Game" HorizontalAlignment="Left" Height="285" Margin="10,90,0,0" VerticalAlignment="Top" Width="772" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="TB_Status" TextWrapping="Wrap" Text="Hold any letters to begin..." FontSize="18" TextAlignment="Center" FontFamily="Segoe UI Semibold" Grid.ColumnSpan="2" Margin="10,221,11.6,132" IsReadOnly="True" BorderThickness="0" IsEnabled="False"/>
+        <TextBox x:Name="TB_Status" TextWrapping="Wrap" Text="Match status" FontSize="18" TextAlignment="Center" FontFamily="Segoe UI Semibold" Grid.ColumnSpan="2" Margin="10,221,11.6,132" IsReadOnly="True" BorderThickness="0" IsEnabled="False"/>
 
     </Grid>
 </Window>
