@@ -23,6 +23,13 @@ namespace WhosTurn
         private readonly string awaitingMatchText = "Press a key to start a game...";
         private readonly string matchBeginningText = "Hold any key to join!";
 
+        private readonly String[] bannedKeyNames = new String[] {
+            "Oem",
+            "None",
+            "LMen",
+            "RMen",
+        };
+
         private GameKey LoserKey;
         private bool readyForGame = true;
 
@@ -140,7 +147,8 @@ namespace WhosTurn
 
             int asciiCode = KeyInterop.VirtualKeyFromKey(e.Key);
             string keyStr = GetKeyLetterFromNumber(asciiCode);
-            if (keyStr.Length > 4) return; // Ignore keys with big names
+            if (keyStr.Length > 5) return; // Ignore keys with big names
+            if (bannedKeyNames.Any(keyStr.Contains)) return; // Ignore keys with ugly names
 
             TB_Status.Text = matchBeginningText;
             whosTurn.AddKey(asciiCode, keyStr);
