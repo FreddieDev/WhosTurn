@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Xml;
 using ColorTranslator = System.Drawing.ColorTranslator;
 
 namespace WhosTurn
@@ -17,7 +11,7 @@ namespace WhosTurn
     public class Game
     {
         // Settings
-        private readonly int CountdownDuration = 2;
+        private readonly int CountdownDuration = 3;
 
         // Vars
         private DispatcherTimer dispatcherTimer;
@@ -64,8 +58,8 @@ namespace WhosTurn
                 GameOver = true; // Update flag to stop leaving players clearing results screen
 
                 var random = new Random();
-                int winnerIndex = random.Next(KeysInGame.Count);
-                MainWindow.DisplayWinner(KeysInGame[winnerIndex].ButtonChar);
+                int loserIndex = random.Next(KeysInGame.Count);
+                MainWindow.StaticDisplayLoser(KeysInGame[loserIndex]);
 
                 dispatcherTimer.Stop();
             } else
@@ -97,8 +91,6 @@ namespace WhosTurn
 
         public void UpdateGame()
         {
-            MainWindow.StaticUpdateKeysDisplay();
-
             // (re)start game countdown if more than 1 person is playing
             bool shouldStartGame = KeysInGame.Count > 1;
             if (shouldStartGame)
@@ -116,8 +108,26 @@ namespace WhosTurn
         {
             if (!KeysInGame.Any(key => key.ASCIICode == asciiCode))
             {
+                int keyPos = KeysInGame.Count;
+
+                if (keyPos > 0)
+                {
+                    // Create min and max position from current key positions
+                    int min = 0, max = KeysInGame.Max(key => key.Pos) + 2;
+
+                    // Create full list from min to max
+                    IEnumerable<int> filterableKeysInGame = Enumerable.Range(min, max);
+
+                    // Create list of current key positions
+                    IEnumerable<int> keyPositions = KeysInGame.Select(key => key.Pos).ToList();
+
+                    // Find the first gap in keyPositions
+                    keyPos = filterableKeysInGame.Except(keyPositions).First();
+                }
+
                 Random random = new Random();
                 GameKey gameKey = new GameKey(
+                    keyPos,
                     keyStr,
                     asciiCode,
 
@@ -129,15 +139,17 @@ namespace WhosTurn
                 KeysInGame.Add(gameKey);
 
                 GameOver = false;
+                MainWindow.StaticRenderKey(gameKey);
                 UpdateGame();
             }
         }
 
         public void RemoveKey(int asciiCode)
         {
-            KeysInGame.RemoveAll(key => key.ASCIICode == asciiCode);
+            GameKey keyToRemove = KeysInGame.Find(key => key.ASCIICode == asciiCode);
+            MainWindow.StaticClearKey(keyToRemove);
+            KeysInGame.Remove(keyToRemove);
             if (!GameOver) UpdateGame();
         }
     }
-
 }

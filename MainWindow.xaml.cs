@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using KeysConverter = System.Windows.Forms.KeysConverter;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Runtime.InteropServices;
-using ColorTranslator = System.Drawing.ColorTranslator;
 
 namespace WhosTurn
 {
@@ -29,10 +19,12 @@ namespace WhosTurn
         private readonly int keyEllipseMargin = 12;
         private readonly int keyDisplayPadding = 17;
 
+        private GameKey loserKey;
+
 
         // Static form. Null if no form created yet.
         private static MainWindow form = null;
-        private Game whosTurn;
+        private readonly Game whosTurn;
 
         public MainWindow()
         {
@@ -52,17 +44,19 @@ namespace WhosTurn
             form.L_Countdown.Content = countdownString;
         }
 
-        private void DrawGameKey(GameKey key, int xPos, int yPos)
+        private void BuildGameKey(GameKey key)
         {
             // Create an Ellipse    
-            Ellipse blueEllipse = new Ellipse
+            key.Ellipse = new Ellipse
             {
                 Height = keyEllipseSizes,
-                Width = keyEllipseSizes
+                Width = keyEllipseSizes,
+                Stroke = new SolidColorBrush(Colors.LightGray),
+                Fill = new SolidColorBrush(key.Color)
             };
 
             // Create button label
-            TextBlock textBlock = new TextBlock
+            key.TextBlock = new TextBlock
             {
                 Width = keyEllipseSizes,
                 Text = key.ButtonChar,
@@ -71,26 +65,16 @@ namespace WhosTurn
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 12, 0, 0) // Vertically center text
             };
-
-
-            // Set Ellipse's width and colours 
-            blueEllipse.StrokeThickness = 2;
-            blueEllipse.Stroke = new SolidColorBrush(Colors.LightGray);
-            blueEllipse.Fill = new SolidColorBrush(key.Color);
-
-            Canvas.SetTop(blueEllipse, yPos);
-            Canvas.SetLeft(blueEllipse, xPos);
-            C_Game.Children.Add(blueEllipse);
-
-            Canvas.SetLeft(textBlock, xPos);
-            Canvas.SetTop(textBlock, yPos);
-            C_Game.Children.Add(textBlock);
         }
 
-        internal static void DisplayWinner(string winningKey)
+        internal static void StaticDisplayLoser(GameKey loserKey)
         {
-            form.L_Countdown.Content = "";
-            form.L_Status.Content = "\nLOSES";
+            form.DisplayLoser(loserKey);
+        }
+        private void DisplayLoser(GameKey loserKey)
+        {
+            L_Countdown.Content = "";
+            TB_Status.Text = loserKey.ButtonChar + "\nLOSES";
         }
 
         public static void SetCountdownVisibility(bool countdownVisibility)
@@ -98,23 +82,35 @@ namespace WhosTurn
             form.L_Countdown.Visibility = countdownVisibility ? Visibility.Visible : Visibility.Hidden;
         }
 
-        public static void StaticUpdateKeysDisplay()
+        internal static void StaticRenderKey(GameKey key)
         {
-            form.UpdateKeysDisplay();
+            form.RenderKey(key);
+        }
+        private void RenderKey(GameKey key)
+        {
+            BuildGameKey(key);
+
+            int ellipseXPos = keyEllipseSizes + keyEllipseMargin;
+            int xPos = key.Pos * ellipseXPos + keyDisplayPadding;
+            int yPos = keyDisplayPadding;
+
+            Canvas.SetTop(key.Ellipse, yPos);
+            Canvas.SetLeft(key.Ellipse, xPos);
+            C_Game.Children.Add(key.Ellipse);
+
+            Canvas.SetLeft(key.TextBlock, xPos);
+            Canvas.SetTop(key.TextBlock, yPos);
+            C_Game.Children.Add(key.TextBlock);
         }
 
-        private void UpdateKeysDisplay()
+        public static void StaticClearKey(GameKey key)
         {
-            int counter = 0;
-            foreach (GameKey key in whosTurn.KeysInGame)
-            {
-                int ellipseXPos = keyEllipseSizes + keyEllipseMargin;
-                int xPos = counter * ellipseXPos + keyDisplayPadding;
-                int yPos = keyDisplayPadding;
-                DrawGameKey(key, xPos, yPos);
-
-                counter++;
-            }
+            form.ClearKey(key);
+        }
+        private void ClearKey(GameKey key)
+        {
+            C_Game.Children.Remove(key.Ellipse);
+            C_Game.Children.Remove(key.TextBlock);
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

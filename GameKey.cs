@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace WhosTurn
 {
     public class GameKey
     {
+        public int Pos { get; set; } // Incremmenting int that represents the position for the key
         public string ButtonChar { get; set; }
         public int ASCIICode { get; set; }
         public Color Color { get; set; }
+        public Ellipse Ellipse { get; set; }
+        public TextBlock TextBlock { get; set; }
 
-        public GameKey(string buttonChar, int aSCIICode, Color color)
+        public GameKey(int pos, string buttonChar, int aSCIICode, Color color)
         {
+            Pos = pos;
             ButtonChar = buttonChar;
             ASCIICode = aSCIICode;
             Color = color;
