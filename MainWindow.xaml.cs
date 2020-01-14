@@ -19,7 +19,8 @@ namespace WhosTurn
         private readonly int keyEllipseMargin = 12;
         private readonly int keyDisplayPadding = 17;
 
-        private GameKey loserKey;
+        private GameKey LoserKey;
+        private bool readyForGame = true;
 
 
         // Static form. Null if no form created yet.
@@ -73,6 +74,16 @@ namespace WhosTurn
         }
         private void DisplayLoser(GameKey loserKey)
         {
+            readyForGame = false;
+            LoserKey = (GameKey)loserKey.Clone();
+            foreach (GameKey key in whosTurn.KeysInGame)
+            {
+                ClearKey(key);
+            }
+            RenderKey(LoserKey);
+            LoserKey.Ellipse.StrokeThickness = 3;
+            LoserKey.Ellipse.Stroke = new SolidColorBrush(Colors.Red);
+
             L_Countdown.Content = "";
             TB_Status.Text = loserKey.ButtonChar + "\nLOSES";
         }
@@ -105,6 +116,7 @@ namespace WhosTurn
 
         public static void StaticClearKey(GameKey key)
         {
+            if (!form.readyForGame) return;
             form.ClearKey(key);
         }
         private void ClearKey(GameKey key)
@@ -116,6 +128,9 @@ namespace WhosTurn
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             base.OnKeyDown(e);
+
+            // Don't allow a new game to start until the last game is cleared
+            if (!readyForGame) return;
 
             int asciiCode = KeyInterop.VirtualKeyFromKey(e.Key);
             string keyStr = GetKeyLetterFromNumber(asciiCode);
@@ -130,6 +145,17 @@ namespace WhosTurn
 
             int asciiCode = KeyInterop.VirtualKeyFromKey(e.Key);
             whosTurn.RemoveKey(asciiCode);
+
+            if (whosTurn.KeysInGame.Count == 0)
+            {
+                if (!readyForGame)
+                {
+                    ClearKey(LoserKey);
+                    LoserKey = null;
+                    readyForGame = true;
+                }
+                TB_Status.Text = "Hold any letters to begin...";
+            }
         }
     }
 }

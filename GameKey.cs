@@ -1,10 +1,11 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace WhosTurn
 {
-    public class GameKey
+    public class GameKey : ICloneable
     {
         public int Pos { get; set; } // Incremmenting int that represents the position for the key
         public string ButtonChar { get; set; }
@@ -19,6 +20,11 @@ namespace WhosTurn
             ButtonChar = buttonChar;
             ASCIICode = aSCIICode;
             Color = color;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }
